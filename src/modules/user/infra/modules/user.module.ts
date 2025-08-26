@@ -6,6 +6,7 @@ import { UserRepository } from '../db/repositories/user.repository';
 import { AuthenticationMiddleware } from '../../http/middlewares/Auth.middleware';
 import { UserController } from '../../http/controllers/user.controller';
 import { DateProvider } from '../../../../shared/infra/providers/Date.provider';
+import { CreateUserUseCase } from '../usecases/create-user.usecase';
 
 @Module({
   imports: [],
@@ -16,6 +17,7 @@ import { DateProvider } from '../../../../shared/infra/providers/Date.provider';
     EncrypterProvider,
     UserRepository,
     DateProvider,
+    CreateUserUseCase,
   ],
   exports: [JWTProvider, HashProvider],
 })

@@ -41,21 +41,6 @@ export class PrismaProvider
     }
 
     const allModels = [
-      'trainers',
-      'user_extra_services',
-      'gym_plan_features',
-      'gym_plans',
-      'gyms',
-      'sport_modalities',
-      'extra_services',
-      'testimonies',
-      'login_logs',
-      'password_histories',
-      'ibge_cities',
-      'ufs',
-      'addresses',
-      'administrator_permissions',
-      'administrators',
       'users',
     ];
 

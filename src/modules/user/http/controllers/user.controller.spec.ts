@@ -12,6 +12,7 @@ import { Environment } from '../../../../shared/config/app.config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { faker } from '@faker-js/faker';
 import { CreateUserBodyDTO } from '../../domain/dtos/requests/CreateUser.request.dto';
+import { userSeeder } from '../../../../shared/infra/db/prisma/seeders/user.seed';
 
 describe('User Controller - /user', () => {
   const controllerRoute = '/user';
@@ -59,7 +60,7 @@ describe('User Controller - /user', () => {
 
   beforeEach(async () => {
     await prisma.seed([
-      // Add your seed data here
+      userSeeder,
     ]);
     jest.clearAllMocks();
   });
@@ -70,7 +71,23 @@ describe('User Controller - /user', () => {
 
   describe('POST /register', () => {
     describe('\nSuccessful cases:', () => {
+      it('should register a new user successfully', async () => {
 
+              expect(async () => {
+                const response = await request(app.getHttpServer())
+                  .post(registerUserRoute)
+                  .send({
+                    ...data,
+                  })
+                  .set('Accept', 'application/json');
+
+                expect(response.status).toBe(201);
+                expect(response.body).toHaveProperty('token');
+                expect(response.body).toHaveProperty('user');
+                expect(response.body.user).toHaveProperty('id_user');
+                expect(response.body.user.name).toBe('Fulano de Tal');
+              });
+      });
     });
     describe('\nUnsuccessful cases:', () => {
     });

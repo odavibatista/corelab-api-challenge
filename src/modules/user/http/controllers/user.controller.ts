@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpException,
   Post,
   Req,
   Res,
@@ -28,11 +29,13 @@ import {
   UserLoginResponseDTO,
 } from '../../domain/dtos/requests/UserLogin.request.dto';
 import { InvalidCredentialsException } from '../../domain/dtos/errors/InvalidCredentials.exception';
+import { CreateUserUseCase } from '../../infra/usecases/create-user.usecase';
 
 @Controller('user')
 @ApiTags('Usuário')
 export class UserController implements UserControllerInterface {
   constructor(
+    private readonly createUserUseCase: CreateUserUseCase,
   ) {}
 
   @Post('register')
@@ -56,11 +59,21 @@ export class UserController implements UserControllerInterface {
     @Req() req: Request,
     @Res() res: Response,
     @Body() createUserBody: CreateUserBodyDTO,
-  ): Promise<any | Response | AllExceptionsFilterDTO> {
+  ): Promise<Response | AllExceptionsFilterDTO> {
     if (req.user) {
       throw new UnauthorizedException('Usuário já autenticado.');
     }
 
+    const result = await this.createUserUseCase.execute(createUserBody);
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      return res.status(201).json(result);
+    }
   }
 
   @Post('login')
