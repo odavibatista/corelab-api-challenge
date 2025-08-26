@@ -54,3 +54,8 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Prisma
+/src/shared/infra/db/generated/*
+/src/shared/infra/db/prisma/migrations/*
+/src/shared/infra/db/prisma/dev.db
