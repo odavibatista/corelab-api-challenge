@@ -1,16 +1,19 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { SharedController } from '../shared/http/controllers/shared.controller';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisOptions } from '../shared/config/redis.config';
+import { SharedModule } from '../shared/infra/modules/Shared.module';
+import { UserModule } from '../modules/user/infra/modules/user.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     CacheModule.registerAsync(RedisOptions),
+    SharedModule,
+    UserModule,
   ],
-  controllers: [SharedController],
+  controllers: [],
   providers: [
     {
       provide: APP_PIPE,
