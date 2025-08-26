@@ -40,9 +40,7 @@ export class PrismaProvider
       throw new Error('This method is not allowed in production enviroment');
     }
 
-    const allModels = [
-      'users',
-    ];
+    const allModels = ['users'];
 
     const modelsToClear = models === 'all' ? allModels : models;
 

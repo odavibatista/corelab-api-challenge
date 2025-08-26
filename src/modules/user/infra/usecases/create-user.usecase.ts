@@ -30,21 +30,22 @@ export class CreateUserUseCase implements UseCaseInterface {
     | EmailAlreadyRegisteredException
     | UnprocessableEntityException
   > {
+    if (!validateName(data.name))
+      throw new UnprocessableDataException('Nome inválido');
 
-    if (!validateName(data.name)) throw new UnprocessableDataException('Nome inválido');
-
-    if (!validateEmail(data.email)) throw new UnprocessableDataException('E-mail inválido');
+    if (!validateEmail(data.email))
+      throw new UnprocessableDataException('E-mail inválido');
 
     if (!validatePassword(data.password))
       throw new UnprocessableDataException('Senha inválida');
 
-    await this.userRepository.findByEmail(
-      data.email,
-    ).then(emailAlreadyRegisteredByUser => {
-      if (emailAlreadyRegisteredByUser)
-        throw new EmailAlreadyRegisteredException();
-    });
-    
+    await this.userRepository
+      .findByEmail(data.email)
+      .then((emailAlreadyRegisteredByUser) => {
+        if (emailAlreadyRegisteredByUser)
+          throw new EmailAlreadyRegisteredException();
+      });
+
     if (
       !data.password ||
       !data.password_confirmation ||

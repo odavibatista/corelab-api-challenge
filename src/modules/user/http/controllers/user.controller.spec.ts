@@ -1,9 +1,7 @@
 import * as request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
-import {
-  INestApplication,
-} from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { PrismaProvider } from '../../../../shared/infra/providers/Prisma.provider';
 import { AppModule } from '../../../../app/app.module';
 import { UserModule } from '../../infra/modules/user.module';
@@ -13,6 +11,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { faker } from '@faker-js/faker';
 import { CreateUserBodyDTO } from '../../domain/dtos/requests/CreateUser.request.dto';
 import { userSeeder } from '../../../../shared/infra/db/prisma/seeders/user.seed';
+import { InvalidCredentialsException } from '../../domain/dtos/errors/InvalidCredentials.exception';
 
 describe('User Controller - /user', () => {
   const controllerRoute = '/user';
@@ -59,9 +58,7 @@ describe('User Controller - /user', () => {
   });
 
   beforeEach(async () => {
-    await prisma.seed([
-      userSeeder,
-    ]);
+    await prisma.seed([userSeeder]);
     jest.clearAllMocks();
   });
 
@@ -72,34 +69,59 @@ describe('User Controller - /user', () => {
   describe('POST /register', () => {
     describe('\nSuccessful cases:', () => {
       it('should register a new user successfully', async () => {
+        expect(async () => {
+          const response = await request(app.getHttpServer())
+            .post(registerUserRoute)
+            .send({
+              ...data,
+            })
+            .set('Accept', 'application/json');
 
-              expect(async () => {
-                const response = await request(app.getHttpServer())
-                  .post(registerUserRoute)
-                  .send({
-                    ...data,
-                  })
-                  .set('Accept', 'application/json');
-
-                expect(response.status).toBe(201);
-                expect(response.body).toHaveProperty('token');
-                expect(response.body).toHaveProperty('user');
-                expect(response.body.user).toHaveProperty('id_user');
-                expect(response.body.user.name).toBe('Fulano de Tal');
-              });
+          expect(response.status).toBe(201);
+          expect(response.body).toHaveProperty('token');
+          expect(response.body).toHaveProperty('user');
+          expect(response.body.user).toHaveProperty('id_user');
+          expect(response.body.user.name).toBe('Fulano de Tal');
+        });
       });
     });
-    describe('\nUnsuccessful cases:', () => {
-    });
+    describe('\nUnsuccessful cases:', () => {});
   });
 
   describe('POST /login', () => {
     describe('\nSuccessful cases:', () => {
+      it('should return 200 and instance of UserLoginResponseDTO on successful login', async () => {
+        const response = await request(app.getHttpServer())
+          .post(loginUserRoute)
+          .send({
+            email: 'usuario_corenotes@gmail.com',
+            password: 'senha123',
+          })
+          .set('Accept', 'application/json');
 
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('token');
+        expect(response.body).toHaveProperty('user');
+        jwtToken = response.body.token;
+      });
     });
 
     describe('\nUnsuccessful cases:', () => {
+      describe('\nInvalid Credentials', () => {
+        it('should return InvalidCredentialsException if user login data is invalid', async () => {
+          const response = await request(app.getHttpServer())
+            .post(loginUserRoute)
+            .send(data)
+            .set('Accept', 'application/json');
 
+          expect(response.status).toBe(
+            new InvalidCredentialsException().getStatus(),
+          );
+          expect(response.body.message).toBe(
+            new InvalidCredentialsException().message,
+          );
+        });
+      });
     });
   });
 });

@@ -8,11 +8,7 @@ import { User } from '@prisma/client';
 
 @Injectable()
 export class UserRepository implements UserRepositoryInterface {
-  public encryptedFields: (keyof User)[] = [
-    'name',
-    'email',
-    'password',
-  ];
+  public encryptedFields: (keyof User)[] = ['name', 'email', 'password'];
 
   constructor(
     private readonly hashProvider: HashProvider,

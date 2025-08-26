@@ -25,10 +25,7 @@ describe('User Register Use Case Test Suites', () => {
     encrypterProvider = new EncrypterProvider();
     hashProvider = new HashProvider();
     jwtProvider = new JWTProvider();
-    mockUserRepository = new UserRepository(
-      hashProvider,
-      encrypterProvider,
-    );
+    mockUserRepository = new UserRepository(hashProvider, encrypterProvider);
     useCase = new CreateUserUseCase(
       hashProvider,
       jwtProvider,

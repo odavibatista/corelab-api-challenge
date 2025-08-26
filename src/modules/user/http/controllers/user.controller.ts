@@ -30,12 +30,15 @@ import {
 } from '../../domain/dtos/requests/UserLogin.request.dto';
 import { InvalidCredentialsException } from '../../domain/dtos/errors/InvalidCredentials.exception';
 import { CreateUserUseCase } from '../../infra/usecases/create-user.usecase';
+import { UnprocessableDataException } from '../../../../shared/domain/errors/UnprocessableData.exception';
+import { UserLoginUsecase } from '../../infra/usecases/user-login.usecase';
 
 @Controller('user')
 @ApiTags('Usuário')
 export class UserController implements UserControllerInterface {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly userLoginUseCase: UserLoginUsecase,
   ) {}
 
   @Post('register')
@@ -45,6 +48,10 @@ export class UserController implements UserControllerInterface {
   })
   @ApiUnauthorizedResponse({
     description: 'Usuário não autorizado.',
+    type: AllExceptionsFilterDTO,
+  })
+  @ApiUnprocessableEntityResponse({
+    description: new UnprocessableDataException().message,
     type: AllExceptionsFilterDTO,
   })
   @ApiConflictResponse({
@@ -101,9 +108,23 @@ export class UserController implements UserControllerInterface {
     @Body() data: UserLoginRequestDTO,
     @Req() req: Request,
     @Res() res: Response,
-  ): Promise<any | Response | AllExceptionsFilterDTO> {
+  ): Promise<Response> {
     if (req.user) {
       throw new UnauthorizedException('Usuário já autenticado.');
+    }
+
+    const userIp = (req.headers['x-forwarded-for'] ||
+      req.socket.remoteAddress) as string;
+
+    const result = await this.userLoginUseCase.execute(data, userIp);
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      return res.status(200).json(result);
     }
   }
 }
