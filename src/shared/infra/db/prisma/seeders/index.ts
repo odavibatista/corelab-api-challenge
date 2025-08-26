@@ -10,9 +10,7 @@ const prisma = new PrismaProvider();
 const seed = async () => {
   console.log('Running seed: ');
 
-  prisma.seed([
-    userSeeder
-  ]);
+  prisma.seed([userSeeder]);
 };
 
 const seedTest = async () => {

@@ -18,7 +18,6 @@ describe('JWT Provider Test Suites', () => {
         user: {
           id_user: String(1),
           name: 'Test User',
-          plan_id: 'basic',
         },
       },
     });
@@ -34,7 +33,6 @@ describe('JWT Provider Test Suites', () => {
         user: {
           id_user: String(1),
           name: 'Test User',
-          plan_id: 'basic',
         },
       },
     });
