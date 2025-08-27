@@ -15,3 +15,9 @@ export const FindNoteByIdResponseSchema = z.object({
 export class FindNoteByIdResponseDto extends createZodDto(
   FindNoteByIdResponseSchema,
 ) {}
+
+export const BrowseNotesResponseSchema = z.array(FindNoteByIdResponseSchema);
+
+export class BrowseNotesResponseDto extends createZodDto(
+  BrowseNotesResponseSchema,
+) {}

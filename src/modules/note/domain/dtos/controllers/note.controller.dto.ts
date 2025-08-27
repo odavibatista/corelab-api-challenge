@@ -3,6 +3,10 @@ import { AllExceptionsFilterDTO } from '../../../../../shared/domain/dtos/errors
 import { CreateNoteBodyDTO } from '../requests/CreateNote.request.dto';
 
 export interface NoteControllerInterface {
+  browseNotes(
+    req: Request,
+    res: Response,
+  ): Promise<Response | AllExceptionsFilterDTO>;
   findNoteById(
     noteId: string,
     req: Request,

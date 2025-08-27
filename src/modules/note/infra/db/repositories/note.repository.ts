@@ -3,7 +3,10 @@ import { prisma } from '../../../../../shared/infra/db/prisma';
 import { EncrypterProvider } from '../../../../../shared/infra/providers/Encrypter.provider';
 import { NoteRepositoryInterface } from '../../../domain/dtos/repositories/Note.repository';
 import { Note } from '@prisma/client';
-import { FindNoteByIdResponseDto } from '../../../domain/dtos/requests/FindNote.request.dto';
+import {
+  BrowseNotesResponseDto,
+  FindNoteByIdResponseDto,
+} from '../../../domain/dtos/requests/FindNote.request.dto';
 import {
   CreateNoteBodyDTO,
   CreateNoteResponseDTO,
@@ -43,7 +46,7 @@ export class NoteRepository implements NoteRepositoryInterface {
   }
 
   /* This method will be used to find all Notes by a user */
-  async findByUser(id_user: string): Promise<FindNoteByIdResponseDto[]> {
+  async findByUser(id_user: string): Promise<BrowseNotesResponseDto> {
     const notes = await prisma.note.findMany({
       where: { user_id: id_user, deletedAt: null },
     });
@@ -65,9 +68,9 @@ export class NoteRepository implements NoteRepositoryInterface {
         note_color: decryptedNote.note_color,
         user_id: decryptedNote.user_id,
         starred: decryptedNote.starred,
-        updated_at: decryptedNote.updatedAt,
         created_at: decryptedNote.createdAt,
-      } as FindNoteByIdResponseDto;
+        updated_at: decryptedNote.updatedAt,
+      };
     });
   }
 
@@ -79,7 +82,9 @@ export class NoteRepository implements NoteRepositoryInterface {
     const note = await prisma.note.create({
       data: {
         note_color: data.note_color,
-        note_title: this.encrypterProvider.encrypt({ content: data.note_title}),
+        note_title: this.encrypterProvider.encrypt({
+          content: data.note_title,
+        }),
         note_text: this.encrypterProvider.encrypt({ content: data.note_text }),
         user_id: user_id,
         starred: data.starred,

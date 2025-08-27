@@ -4,6 +4,7 @@ import { appConfigurations } from '../../../../config/app.config';
 import { mainSeeder } from './main.seed';
 import { PrismaProvider } from '../../../providers/Prisma.provider';
 import { userSeeder } from './user.seed';
+import { noteSeeder } from './note.seed';
 
 const prisma = new PrismaProvider();
 
@@ -11,6 +12,7 @@ const seed = async () => {
   console.log('Running seed: ');
 
   prisma.seed([userSeeder]);
+  prisma.seed([noteSeeder]);
 };
 
 const seedTest = async () => {

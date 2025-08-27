@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { EncrypterProvider } from '../../../../shared/infra/providers/Encrypter.provider';
 import { NoteController } from '../../http/controllers/note.controller';
 import { DateProvider } from '../../../../shared/infra/providers/Date.provider';
@@ -9,6 +14,7 @@ import { HashProvider } from '../../../user/infra/providers/hash.provider';
 import { NoteRepository } from '../db/repositories/note.repository';
 import { CreateNoteUsecase } from '../usecases/create-note.usecase';
 import { FindNoteByIdUsecase } from '../usecases/find-note-by-id.usecase';
+import { BrowseNotesUsecase } from '../usecases/browse-notes.usecase';
 
 @Module({
   imports: [],
@@ -22,6 +28,8 @@ import { FindNoteByIdUsecase } from '../usecases/find-note-by-id.usecase';
     NoteRepository,
     CreateNoteUsecase,
     FindNoteByIdUsecase,
+    BrowseNotesUsecase,
+    UserRepository,
   ],
 })
 export class NoteModule implements NestModule {

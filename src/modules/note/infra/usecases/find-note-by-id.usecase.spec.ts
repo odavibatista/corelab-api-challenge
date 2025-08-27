@@ -5,7 +5,7 @@ import { NoteRepository } from '../db/repositories/note.repository';
 import { FindNoteByIdUsecase } from './find-note-by-id.usecase';
 import { faker } from '@faker-js/faker';
 
-describe('Find Gym By Id Use Case', () => {
+describe('Find Note By Id Use Case', () => {
   let usecase: FindNoteByIdUsecase;
   let mockRepository: NoteRepository;
   let encrypterProvider: EncrypterProvider;

@@ -29,10 +29,14 @@ import {
 } from '../../domain/dtos/requests/CreateNote.request.dto';
 import { Cache } from '@nestjs/cache-manager';
 import { NotAuthenticatedException } from '../../../../shared/domain/errors/NotAuthenticated.exception';
-import { FindNoteByIdResponseDto } from '../../domain/dtos/requests/FindNote.request.dto';
+import {
+  BrowseNotesResponseDto,
+  FindNoteByIdResponseDto,
+} from '../../domain/dtos/requests/FindNote.request.dto';
 import { NoteNotFoundException } from '../../domain/dtos/errors/NoteNotFoundException.exception';
 import { CreateNoteUsecase } from '../../infra/usecases/create-note.usecase';
 import { FindNoteByIdUsecase } from '../../infra/usecases/find-note-by-id.usecase';
+import { BrowseNotesUsecase } from '../../infra/usecases/browse-notes.usecase';
 
 @Controller('notes')
 @ApiTags('Anotações')
@@ -40,9 +44,45 @@ export class NoteController implements NoteControllerInterface {
   constructor(
     private readonly createNoteUseCase: CreateNoteUsecase,
     private readonly findNoteByIdUseCase: FindNoteByIdUsecase,
+    private readonly browseNotesUseCase: BrowseNotesUsecase,
     @Inject('CACHE_MANAGER')
     private readonly cacheManager: Cache,
   ) {}
+
+  @Get('browse')
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: 'Anotações trazidas com sucesso.',
+    type: BrowseNotesResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: new NotAuthenticatedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  async browseNotes(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new NotAuthenticatedException();
+
+    const cachedNotes = await this.cacheManager.get(
+      `notes-${req.user.id_user}`,
+    );
+
+    if (cachedNotes) return res.status(200).json(cachedNotes);
+
+    const result = await this.browseNotesUseCase.execute(req.user.id_user);
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      await this.cacheManager.set(`notes-${req.user.id_user}`, result);
+      return res.status(200).json(result);
+    }
+  }
 
   @Get('find/:noteId')
   @ApiBearerAuth('access-token')
