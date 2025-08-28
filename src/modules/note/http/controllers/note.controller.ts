@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Inject,
@@ -15,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -44,6 +46,7 @@ import {
   EditNoteResponseDTO,
 } from '../../domain/dtos/requests/EditNote.request.dto';
 import { EditNoteUsecase } from '../../infra/usecases/edit-note.usecase';
+import { DeleteNoteUsecase } from '../../infra/usecases/delete-note.usecase';
 
 @Controller('notes')
 @ApiTags('Anotações')
@@ -53,6 +56,7 @@ export class NoteController implements NoteControllerInterface {
     private readonly findNoteByIdUseCase: FindNoteByIdUsecase,
     private readonly browseNotesUseCase: BrowseNotesUsecase,
     private readonly editNoteUseCase: EditNoteUsecase,
+    private readonly deleteNoteUseCase: DeleteNoteUsecase,
     @Inject('CACHE_MANAGER')
     private readonly cacheManager: Cache,
   ) {}
@@ -213,5 +217,34 @@ export class NoteController implements NoteControllerInterface {
     } else {
       return res.status(200).json(result);
     }
+  }
+
+  @Delete('/delete/:cuid')
+  @ApiBearerAuth('access-token')
+  @ApiNoContentResponse({
+    description: 'Anotação deletada com sucesso.',
+  })
+  @ApiUnauthorizedResponse({
+    description: new UnauthorizedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  async deleteNote(
+    @Param('cuid') cuid: string,
+    @Req() req: Request,
+    @Res() res: Response
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new NotAuthenticatedException();
+
+    const result = await this.deleteNoteUseCase.execute(cuid, req.user.id_user);
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } 
+    await this.cacheManager.del(`note-${cuid}`);
+
+    return res.status(204).send();
   }
 }

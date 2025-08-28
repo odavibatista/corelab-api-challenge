@@ -24,4 +24,9 @@ export interface NoteControllerInterface {
     res: Response,
     body: EditNoteBodyDTO,
   ): Promise<Response | AllExceptionsFilterDTO>;
+  deleteNote(
+    cuid: string,
+    req: Request,
+    res: Response,
+  ): Promise<Response | AllExceptionsFilterDTO>;
 }
