@@ -3,10 +3,14 @@ import {
   CreateNoteBodyDTO,
   CreateNoteResponseDTO,
 } from '../requests/CreateNote.request.dto';
-import { FindNoteByIdResponseDto } from '../requests/FindNote.request.dto';
+import {
+  BrowseNotesResponseDto,
+  FindNoteByIdResponseDto,
+} from '../requests/FindNote.request.dto';
 
 export interface NoteRepositoryInterface {
   encryptedFields: (keyof Note)[];
+  search(id_user: string, content: string): Promise<BrowseNotesResponseDto>;
   findById(id_user: string): Promise<FindNoteByIdResponseDto | null>;
   findByUser(id_user: string): Promise<FindNoteByIdResponseDto[]>;
   create(

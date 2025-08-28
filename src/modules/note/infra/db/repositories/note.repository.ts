@@ -18,6 +18,22 @@ export class NoteRepository implements NoteRepositoryInterface {
 
   constructor(private encrypterProvider: EncrypterProvider) {}
 
+  /* This method will be used to search for notes containing the content on its text or title */
+  async search(
+    id_user: string,
+    content: string,
+  ): Promise<BrowseNotesResponseDto> {
+    const userNotes = await this.findByUser(id_user);
+
+    const filteredNotes = userNotes.filter((note) => {
+      return (
+        note.note_title.includes(content) || note.note_text.includes(content)
+      );
+    });
+
+    return filteredNotes;
+  }
+
   /* This method will be used to find a single Note by its id */
   async findById(id: string): Promise<FindNoteByIdResponseDto | null> {
     const note = await prisma.note.findUnique({

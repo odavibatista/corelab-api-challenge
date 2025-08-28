@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -53,11 +54,13 @@ import { StarNoteUsecase } from '../../infra/usecases/star-note.usecase';
 import { StarNoteRequestDto } from '../../domain/dtos/requests/StarNote.request.dto';
 import { ChangeNoteColorRequestDto } from '../../domain/dtos/requests/ChangeNoteColor.request.dto';
 import { ColorAlreadySetException } from '../../domain/dtos/errors/ColorAlreadySetException.exception';
+import { SearchNotesUsecase } from '../../infra/usecases/search-notes.usecase';
 
 @Controller('notes')
 @ApiTags('Anotações')
 export class NoteController implements NoteControllerInterface {
   constructor(
+    private readonly searchNotesUseCase: SearchNotesUsecase,
     private readonly browseNotesUseCase: BrowseNotesUsecase,
     private readonly findNoteByIdUseCase: FindNoteByIdUsecase,
     private readonly createNoteUseCase: CreateNoteUsecase,
@@ -68,6 +71,38 @@ export class NoteController implements NoteControllerInterface {
     @Inject('CACHE_MANAGER')
     private readonly cacheManager: Cache,
   ) {}
+
+  @Get('search')
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: 'Anotações trazidas com sucesso.',
+    type: BrowseNotesResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: new NotAuthenticatedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  async searchNotes(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('content') content: string,
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new NotAuthenticatedException();
+
+    const result = await this.searchNotesUseCase.execute(
+      req.user.id_user,
+      content,
+    );
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      return res.status(200).json(result);
+    }
+  }
 
   @Get('browse')
   @ApiBearerAuth('access-token')
@@ -179,14 +214,12 @@ export class NoteController implements NoteControllerInterface {
       req.user.id_user,
     );
 
-    if (result instanceof HttpException) {
+    if (result instanceof HttpException)
       return res.status(result.getStatus()).json({
         message: result.message,
         status: result.getStatus(),
       });
-    } else {
-      return res.status(201).json(result);
-    }
+    return res.status(201).json(result);
   }
 
   @Post('/star')

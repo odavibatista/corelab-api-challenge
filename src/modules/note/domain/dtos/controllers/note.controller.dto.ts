@@ -6,6 +6,11 @@ import { StarNoteRequestDto } from '../requests/StarNote.request.dto';
 import { ChangeNoteColorRequestDto } from '../requests/ChangeNoteColor.request.dto';
 
 export interface NoteControllerInterface {
+  searchNotes(
+    req: Request,
+    res: Response,
+    content: string,
+  ): Promise<Response | AllExceptionsFilterDTO>;
   browseNotes(
     req: Request,
     res: Response,

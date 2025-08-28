@@ -1,13 +1,11 @@
 import { Inject, UnauthorizedException } from '@nestjs/common';
 import { UseCaseInterface } from '../../../../shared/domain/protocols/UseCase.protocol';
-import { EncrypterProvider } from '../../../../shared/infra/providers/Encrypter.provider';
 import { FindNoteByIdResponseDto } from '../../domain/dtos/requests/FindNote.request.dto';
 import { NoteNotFoundException } from '../../domain/dtos/errors/NoteNotFoundException.exception';
 import { NoteRepository } from '../db/repositories/note.repository';
 
 export class FindNoteByIdUsecase implements UseCaseInterface {
   constructor(
-    private encrypterProvider: EncrypterProvider,
     @Inject()
     private noteRepository: NoteRepository,
   ) {}

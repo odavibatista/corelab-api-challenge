@@ -2,11 +2,11 @@ import { EncrypterProvider } from '../../../../shared/infra/providers/Encrypter.
 import { UserRepository } from '../../../user/infra/db/repositories/user.repository';
 import { HashProvider } from '../../../user/infra/providers/hash.provider';
 import { NoteRepository } from '../db/repositories/note.repository';
-import { BrowseNotesUsecase } from './browse-notes.usecase';
+import { SearchNotesUsecase } from './search-notes.usecase';
 import { faker } from '@faker-js/faker';
 
-describe('Browse Notes Use Case', () => {
-  let usecase: BrowseNotesUsecase;
+describe('Search Notes Use Case Test Suites', () => {
+  let usecase: SearchNotesUsecase;
   let mockRepository: NoteRepository;
   let encrypterProvider: EncrypterProvider;
   let userRepository: UserRepository;
@@ -22,7 +22,7 @@ describe('Browse Notes Use Case', () => {
     hashProvider = new HashProvider();
     userRepository = new UserRepository(hashProvider, encrypterProvider);
 
-    usecase = new BrowseNotesUsecase(mockRepository, userRepository);
+    usecase = new SearchNotesUsecase(mockRepository, userRepository);
     jest.clearAllMocks();
   });
 
@@ -41,12 +41,14 @@ describe('Browse Notes Use Case', () => {
     updated_at: new Date(),
   };
 
+  const content = mockNote.note_text;
+
   it('should return an empty array when no notes are found', async () => {
     jest.spyOn(userRepository, 'findById').mockResolvedValueOnce({} as any);
 
     jest.spyOn(mockRepository, 'findByUser').mockResolvedValueOnce([]);
 
-    const result = await usecase.execute(mockNote.user_id);
+    const result = await usecase.execute(mockNote.user_id, content);
 
     expect(result).toEqual([]);
   });
@@ -56,7 +58,7 @@ describe('Browse Notes Use Case', () => {
 
     jest.spyOn(mockRepository, 'findByUser').mockResolvedValueOnce([mockNote]);
 
-    const result = await usecase.execute(mockNote.user_id);
+    const result = await usecase.execute(mockNote.user_id, content);
 
     expect(result).toEqual([mockNote]);
   });

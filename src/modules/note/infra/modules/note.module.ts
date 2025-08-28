@@ -19,6 +19,7 @@ import { EditNoteUsecase } from '../usecases/edit-note.usecase';
 import { DeleteNoteUsecase } from '../usecases/delete-note.usecase';
 import { ChangeNoteColorUsecase } from '../usecases/change-note-color.usecase';
 import { StarNoteUsecase } from '../usecases/star-note.usecase';
+import { SearchNotesUsecase } from '../usecases/search-notes.usecase';
 
 @Module({
   imports: [],
@@ -30,6 +31,7 @@ import { StarNoteUsecase } from '../usecases/star-note.usecase';
     UserRepository,
     DateProvider,
     NoteRepository,
+    SearchNotesUsecase,
     CreateNoteUsecase,
     FindNoteByIdUsecase,
     BrowseNotesUsecase,
@@ -43,6 +45,10 @@ import { StarNoteUsecase } from '../usecases/star-note.usecase';
 export class NoteModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthenticationMiddleware).forRoutes(
+      {
+        path: 'notes/search',
+        method: RequestMethod.GET,
+      },
       {
         path: 'notes/browse',
         method: RequestMethod.GET,
