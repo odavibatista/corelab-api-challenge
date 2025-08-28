@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, UnauthorizedException } from '@nestjs/common';
 import { UseCaseInterface } from '../../../../shared/domain/protocols/UseCase.protocol';
 import { EncrypterProvider } from '../../../../shared/infra/providers/Encrypter.provider';
 import { FindNoteByIdResponseDto } from '../../domain/dtos/requests/FindNote.request.dto';
@@ -14,11 +14,18 @@ export class FindNoteByIdUsecase implements UseCaseInterface {
 
   async execute(
     cuid: string,
-  ): Promise<FindNoteByIdResponseDto | NoteNotFoundException> {
+    user_id: string,
+  ): Promise<
+    FindNoteByIdResponseDto | NoteNotFoundException | UnauthorizedException
+  > {
     const note = await this.noteRepository.findById(cuid);
 
     if (!note) {
       throw new NoteNotFoundException();
+    }
+
+    if (note.user_id !== user_id) {
+      throw new UnauthorizedException();
     }
 
     return {

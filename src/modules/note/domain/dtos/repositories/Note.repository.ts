@@ -13,5 +13,6 @@ export interface NoteRepositoryInterface {
     user_id: string,
     data: CreateNoteBodyDTO,
   ): Promise<CreateNoteResponseDTO>;
+  edit(id_note: string, data: Partial<CreateNoteBodyDTO>): Promise<Note | null>;
   delete(id_note: string): Promise<boolean>;
 }

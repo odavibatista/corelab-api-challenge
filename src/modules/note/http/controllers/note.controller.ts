@@ -5,9 +5,11 @@ import {
   HttpException,
   Inject,
   Param,
+  Patch,
   Post,
   Req,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -37,6 +39,11 @@ import { NoteNotFoundException } from '../../domain/dtos/errors/NoteNotFoundExce
 import { CreateNoteUsecase } from '../../infra/usecases/create-note.usecase';
 import { FindNoteByIdUsecase } from '../../infra/usecases/find-note-by-id.usecase';
 import { BrowseNotesUsecase } from '../../infra/usecases/browse-notes.usecase';
+import {
+  EditNoteBodyDTO,
+  EditNoteResponseDTO,
+} from '../../domain/dtos/requests/EditNote.request.dto';
+import { EditNoteUsecase } from '../../infra/usecases/edit-note.usecase';
 
 @Controller('notes')
 @ApiTags('Anotações')
@@ -45,6 +52,7 @@ export class NoteController implements NoteControllerInterface {
     private readonly createNoteUseCase: CreateNoteUsecase,
     private readonly findNoteByIdUseCase: FindNoteByIdUsecase,
     private readonly browseNotesUseCase: BrowseNotesUsecase,
+    private readonly editNoteUseCase: EditNoteUsecase,
     @Inject('CACHE_MANAGER')
     private readonly cacheManager: Cache,
   ) {}
@@ -98,6 +106,10 @@ export class NoteController implements NoteControllerInterface {
     description: new NotAuthenticatedException().message,
     type: AllExceptionsFilterDTO,
   })
+  @ApiUnauthorizedResponse({
+    description: new UnauthorizedException().message,
+    type: AllExceptionsFilterDTO,
+  })
   async findNoteById(
     @Param('noteId') noteId: string,
     @Req() req: Request,
@@ -109,7 +121,10 @@ export class NoteController implements NoteControllerInterface {
 
     if (cachedNote) return res.status(200).json(cachedNote);
 
-    const result = await this.findNoteByIdUseCase.execute(noteId);
+    const result = await this.findNoteByIdUseCase.execute(
+      noteId,
+      req.user.id_user,
+    );
 
     if (result instanceof HttpException) {
       return res.status(result.getStatus()).json({
@@ -159,6 +174,44 @@ export class NoteController implements NoteControllerInterface {
       });
     } else {
       return res.status(201).json(result);
+    }
+  }
+
+  @Patch('/edit/:cuid')
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: 'Anotação editada com sucesso.',
+    type: EditNoteResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: new NoteNotFoundException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  @ApiUnauthorizedResponse({
+    description: new NotAuthenticatedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  async editNote(
+    @Param('cuid') cuid: string,
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: EditNoteBodyDTO,
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new NotAuthenticatedException();
+
+    const result = await this.editNoteUseCase.execute(
+      cuid,
+      req.user.id_user,
+      body,
+    );
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      return res.status(200).json(result);
     }
   }
 }

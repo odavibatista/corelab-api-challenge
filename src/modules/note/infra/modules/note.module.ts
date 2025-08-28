@@ -15,6 +15,7 @@ import { NoteRepository } from '../db/repositories/note.repository';
 import { CreateNoteUsecase } from '../usecases/create-note.usecase';
 import { FindNoteByIdUsecase } from '../usecases/find-note-by-id.usecase';
 import { BrowseNotesUsecase } from '../usecases/browse-notes.usecase';
+import { EditNoteUsecase } from '../usecases/edit-note.usecase';
 
 @Module({
   imports: [],
@@ -30,6 +31,7 @@ import { BrowseNotesUsecase } from '../usecases/browse-notes.usecase';
     FindNoteByIdUsecase,
     BrowseNotesUsecase,
     UserRepository,
+    EditNoteUsecase,
   ],
 })
 export class NoteModule implements NestModule {

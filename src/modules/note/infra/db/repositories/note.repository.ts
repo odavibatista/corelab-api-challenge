@@ -103,6 +103,36 @@ export class NoteRepository implements NoteRepositoryInterface {
     } as CreateNoteResponseDTO;
   }
 
+  /* This method will create a new note */
+  async edit(
+    id_note: string,
+    data: Partial<CreateNoteBodyDTO>,
+  ): Promise<Note | null> {
+    const updatedData: Partial<CreateNoteBodyDTO> = { ...data };
+
+    if (data.note_title) {
+      updatedData.note_title = this.encrypterProvider.encrypt({
+        content: data.note_title,
+      });
+    }
+
+    if (data.note_text) {
+      updatedData.note_text = this.encrypterProvider.encrypt({
+        content: data.note_text,
+      });
+    }
+
+    const note = await prisma.note.update({
+      where: { id_note, deletedAt: null },
+      data: {
+        ...updatedData,
+        updatedAt: new Date(),
+      },
+    });
+
+    return note;
+  }
+
   /* Deleting a Note */
   async delete(id_note: string): Promise<boolean> {
     const note = await prisma.note.update({
