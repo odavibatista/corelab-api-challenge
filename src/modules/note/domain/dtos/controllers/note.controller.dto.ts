@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { AllExceptionsFilterDTO } from '../../../../../shared/domain/dtos/errors/AllException.filter.dto';
 import { CreateNoteBodyDTO } from '../requests/CreateNote.request.dto';
 import { EditNoteBodyDTO } from '../requests/EditNote.request.dto';
+import { StarNoteRequestDto } from '../requests/StarNote.request.dto';
+import { ChangeNoteColorRequestDto } from '../requests/ChangeNoteColor.request.dto';
 
 export interface NoteControllerInterface {
   browseNotes(
@@ -16,7 +18,17 @@ export interface NoteControllerInterface {
   createNote(
     req: Request,
     res: Response,
-    createNoteBody: CreateNoteBodyDTO,
+    body: CreateNoteBodyDTO,
+  ): Promise<Response | AllExceptionsFilterDTO>;
+  starNote(
+    req: Request,
+    res: Response,
+    body: StarNoteRequestDto,
+  ): Promise<Response | AllExceptionsFilterDTO>;
+  changeNoteColor(
+    req: Request,
+    res: Response,
+    body: ChangeNoteColorRequestDto,
   ): Promise<Response | AllExceptionsFilterDTO>;
   editNote(
     cuid: string,

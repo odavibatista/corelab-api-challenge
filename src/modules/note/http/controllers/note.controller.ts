@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiNoContentResponse,
@@ -47,14 +48,21 @@ import {
 } from '../../domain/dtos/requests/EditNote.request.dto';
 import { EditNoteUsecase } from '../../infra/usecases/edit-note.usecase';
 import { DeleteNoteUsecase } from '../../infra/usecases/delete-note.usecase';
+import { ChangeNoteColorUsecase } from '../../infra/usecases/change-note-color.usecase';
+import { StarNoteUsecase } from '../../infra/usecases/star-note.usecase';
+import { StarNoteRequestDto } from '../../domain/dtos/requests/StarNote.request.dto';
+import { ChangeNoteColorRequestDto } from '../../domain/dtos/requests/ChangeNoteColor.request.dto';
+import { ColorAlreadySetException } from '../../domain/dtos/errors/ColorAlreadySetException.exception';
 
 @Controller('notes')
 @ApiTags('Anotações')
 export class NoteController implements NoteControllerInterface {
   constructor(
-    private readonly createNoteUseCase: CreateNoteUsecase,
-    private readonly findNoteByIdUseCase: FindNoteByIdUsecase,
     private readonly browseNotesUseCase: BrowseNotesUsecase,
+    private readonly findNoteByIdUseCase: FindNoteByIdUsecase,
+    private readonly createNoteUseCase: CreateNoteUsecase,
+    private readonly changeNoteColorUseCase: ChangeNoteColorUsecase,
+    private readonly starNoteUseCase: StarNoteUsecase,
     private readonly editNoteUseCase: EditNoteUsecase,
     private readonly deleteNoteUseCase: DeleteNoteUsecase,
     @Inject('CACHE_MANAGER')
@@ -181,6 +189,91 @@ export class NoteController implements NoteControllerInterface {
     }
   }
 
+  @Post('/star')
+  @ApiBearerAuth('access-token')
+  @ApiNoContentResponse({
+    description: 'Anotação des/favoritada com sucesso.',
+  })
+  @ApiNotFoundResponse({
+    description: new NoteNotFoundException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  @ApiUnauthorizedResponse({
+    description: new NotAuthenticatedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  async starNote(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: StarNoteRequestDto,
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new NotAuthenticatedException();
+
+    const result = await this.starNoteUseCase.execute(body, req.user.id_user);
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      const updatedNote = await this.findNoteByIdUseCase.execute(
+        body.note_id,
+        req.user.id_user,
+      );
+
+      await this.cacheManager.set(`note-${body.note_id}`, updatedNote);
+
+      return res.status(204).send();
+    }
+  }
+
+  @Post('/change-color')
+  @ApiBearerAuth('access-token')
+  @ApiNoContentResponse({
+    description: 'Cor da anotação alterada com sucesso.',
+  })
+  @ApiConflictResponse({
+    description: new ColorAlreadySetException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  @ApiNotFoundResponse({
+    description: new NoteNotFoundException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  @ApiUnauthorizedResponse({
+    description: new NotAuthenticatedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  async changeNoteColor(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: ChangeNoteColorRequestDto,
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new NotAuthenticatedException();
+
+    const result = await this.changeNoteColorUseCase.execute(
+      req.user.id_user,
+      body,
+    );
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      const updatedNote = await this.findNoteByIdUseCase.execute(
+        body.note_id,
+        req.user.id_user,
+      );
+
+      await this.cacheManager.set(`note-${body.note_id}`, updatedNote);
+
+      return res.status(204).send();
+    }
+  }
+
   @Patch('/edit/:cuid')
   @ApiBearerAuth('access-token')
   @ApiOkResponse({
@@ -215,6 +308,8 @@ export class NoteController implements NoteControllerInterface {
         status: result.getStatus(),
       });
     } else {
+      await this.cacheManager.set(`note-${cuid}`, result);
+
       return res.status(200).json(result);
     }
   }
@@ -231,7 +326,7 @@ export class NoteController implements NoteControllerInterface {
   async deleteNote(
     @Param('cuid') cuid: string,
     @Req() req: Request,
-    @Res() res: Response
+    @Res() res: Response,
   ): Promise<Response | AllExceptionsFilterDTO> {
     if (!req.user) throw new NotAuthenticatedException();
 
@@ -242,7 +337,7 @@ export class NoteController implements NoteControllerInterface {
         message: result.message,
         status: result.getStatus(),
       });
-    } 
+    }
     await this.cacheManager.del(`note-${cuid}`);
 
     return res.status(204).send();

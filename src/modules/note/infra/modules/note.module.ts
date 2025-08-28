@@ -17,6 +17,8 @@ import { FindNoteByIdUsecase } from '../usecases/find-note-by-id.usecase';
 import { BrowseNotesUsecase } from '../usecases/browse-notes.usecase';
 import { EditNoteUsecase } from '../usecases/edit-note.usecase';
 import { DeleteNoteUsecase } from '../usecases/delete-note.usecase';
+import { ChangeNoteColorUsecase } from '../usecases/change-note-color.usecase';
+import { StarNoteUsecase } from '../usecases/star-note.usecase';
 
 @Module({
   imports: [],
@@ -32,6 +34,8 @@ import { DeleteNoteUsecase } from '../usecases/delete-note.usecase';
     FindNoteByIdUsecase,
     BrowseNotesUsecase,
     UserRepository,
+    ChangeNoteColorUsecase,
+    StarNoteUsecase,
     EditNoteUsecase,
     DeleteNoteUsecase,
   ],
@@ -49,6 +53,14 @@ export class NoteModule implements NestModule {
       },
       {
         path: 'notes/create',
+        method: RequestMethod.POST,
+      },
+      {
+        path: 'notes/star',
+        method: RequestMethod.POST,
+      },
+      {
+        path: 'notes/change-color',
         method: RequestMethod.POST,
       },
       {

@@ -103,6 +103,55 @@ export class NoteRepository implements NoteRepositoryInterface {
     } as CreateNoteResponseDTO;
   }
 
+  /* Starring or removing the star of a note */
+  async star(id_note: string): Promise<Note | null> {
+    const note = await prisma.note.findUnique({
+      where: { id_note, deletedAt: null },
+    });
+
+    if (!note) {
+      return null;
+    }
+
+    const updatedNote = await prisma.note.update({
+      where: { id_note },
+      data: { starred: !note.starred },
+    });
+
+    const decryptedNote = this.encrypterProvider.decryptData(
+      updatedNote,
+      this.encryptedFields as (keyof typeof updatedNote)[],
+    );
+
+    return decryptedNote;
+  }
+
+  /* Changing a note's color */
+  async changeColor(
+    id_note: string,
+    color: 'red' | 'green' | 'blue' | 'yellow',
+  ): Promise<Note | null> {
+    const note = await prisma.note.findUnique({
+      where: { id_note: id_note, deletedAt: null },
+    });
+
+    if (!note) {
+      return null;
+    }
+
+    const updatedNote = await prisma.note.update({
+      where: { id_note, deletedAt: null },
+      data: { note_color: color },
+    });
+
+    const decryptedNote = this.encrypterProvider.decryptData(
+      updatedNote,
+      this.encryptedFields as (keyof typeof updatedNote)[],
+    );
+
+    return decryptedNote;
+  }
+
   /* This method will create a new note */
   async edit(
     id_note: string,

@@ -13,6 +13,11 @@ export interface NoteRepositoryInterface {
     user_id: string,
     data: CreateNoteBodyDTO,
   ): Promise<CreateNoteResponseDTO>;
+  star(id_note: string): Promise<Note | null>;
+  changeColor(
+    id_note: string,
+    color: 'red' | 'green' | 'blue' | 'yellow',
+  ): Promise<Note | null>;
   edit(id_note: string, data: Partial<CreateNoteBodyDTO>): Promise<Note | null>;
   delete(id_note: string): Promise<boolean>;
 }

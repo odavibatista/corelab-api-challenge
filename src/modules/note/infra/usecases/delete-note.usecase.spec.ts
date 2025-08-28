@@ -34,7 +34,7 @@ describe('Delete Note Usecase Test Suites', () => {
   });
 
   const note_id = faker.string.uuid();
-  
+
   const user_id = faker.string.uuid();
 
   const mockNote: EditNoteResponseDTO = {
@@ -46,43 +46,59 @@ describe('Delete Note Usecase Test Suites', () => {
     user_id: user_id,
     created_at: new Date(),
     updated_at: new Date(),
-  }
+  };
 
   describe('\nUnsuccessful Cases', () => {
     describe('\nUnauthorized Cases', () => {
       it('should throw UserNotFoundException if the user does not exist', async () => {
         jest.spyOn(mockUserRepository, 'findById').mockResolvedValueOnce(null);
 
-        await expect(useCase.execute(note_id, user_id)).rejects.toThrow(UserNotFoundException);
-      })
+        await expect(useCase.execute(note_id, user_id)).rejects.toThrow(
+          UserNotFoundException,
+        );
+      });
 
-      it('should throw NoteNotFoundException if the note does not exist', async ()  => {
-        jest.spyOn(mockUserRepository, 'findById').mockResolvedValueOnce({} as any);
+      it('should throw NoteNotFoundException if the note does not exist', async () => {
+        jest
+          .spyOn(mockUserRepository, 'findById')
+          .mockResolvedValueOnce({} as any);
         jest.spyOn(mockNoteRepository, 'findById').mockResolvedValueOnce(null);
 
-        await expect(useCase.execute(note_id, user_id)).rejects.toThrow(NoteNotFoundException);
-      })
+        await expect(useCase.execute(note_id, user_id)).rejects.toThrow(
+          NoteNotFoundException,
+        );
+      });
 
       it('should throw UnauthorizedException if the note does not belong to the user', async () => {
-        jest.spyOn(mockUserRepository, 'findById').mockResolvedValueOnce({} as any);
-        jest.spyOn(mockNoteRepository, 'findById').mockResolvedValueOnce({ user_id: faker.string.uuid() } as any);
+        jest
+          .spyOn(mockUserRepository, 'findById')
+          .mockResolvedValueOnce({} as any);
+        jest
+          .spyOn(mockNoteRepository, 'findById')
+          .mockResolvedValueOnce({ user_id: faker.string.uuid() } as any);
 
-        await expect(useCase.execute(note_id, user_id)).rejects.toThrow(UnauthorizedException);
-      })
-    })
-  })
+        await expect(useCase.execute(note_id, user_id)).rejects.toThrow(
+          UnauthorizedException,
+        );
+      });
+    });
+  });
 
   describe('\nSuccessful Cases', () => {
-     it('should return true when a note is successfully deleted', async () => {
-       jest.spyOn(mockNoteRepository, 'findById').mockResolvedValueOnce(mockNote);
-       jest.spyOn(mockUserRepository, 'findById').mockResolvedValueOnce({ } as any);
-       jest.spyOn(mockNoteRepository, 'delete').mockResolvedValueOnce(true);
+    it('should return true when a note is successfully deleted', async () => {
+      jest
+        .spyOn(mockNoteRepository, 'findById')
+        .mockResolvedValueOnce(mockNote);
+      jest
+        .spyOn(mockUserRepository, 'findById')
+        .mockResolvedValueOnce({} as any);
+      jest.spyOn(mockNoteRepository, 'delete').mockResolvedValueOnce(true);
 
-       mockNote.user_id = user_id;
-       
-       const result = await useCase.execute(note_id, user_id);
+      mockNote.user_id = user_id;
 
-       expect(result).toBe(true);
-     });
-  })
+      const result = await useCase.execute(note_id, user_id);
+
+      expect(result).toBe(true);
+    });
+  });
 });
