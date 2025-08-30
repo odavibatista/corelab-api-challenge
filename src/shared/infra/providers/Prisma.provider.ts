@@ -10,7 +10,7 @@ export class PrismaProvider
   constructor(private environment: Environment = appConfigurations.NODE_ENV) {
     let datasourceUrl = appConfigurations.DATABASE_URL;
     if (environment === Environment.TEST) {
-      datasourceUrl = appConfigurations.SHADOW_DATABASE_URL;
+      datasourceUrl = appConfigurations.SHADOW_DATABASE_URL as string;
     }
     super({
       datasourceUrl,
