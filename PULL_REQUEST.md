@@ -84,7 +84,7 @@ REDIS_PRODUCTION_USER="default"
 REDIS_PRODUCTION_PASSWORD="your-password-here"
 ```
 
-Por fim, no repositório do front-end, copie o arquivo `.env.example`, altere seu nome para `.env` e mude o valor da variável `NEXT_PUBLIC_API_URL` para a URL da API montada via configuração manual ou via Docker (próximo passo).
+Por fim, no repositório do front-end, copie o arquivo `.env.example`, altere seu nome para `.env` e mude o valor da variável `NEXT_PUBLIC_API` para a URL da API montada via configuração manual ou via Docker (próximo passo).
 
 
 #### Rodando com Docker
