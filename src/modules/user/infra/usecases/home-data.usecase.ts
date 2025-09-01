@@ -16,8 +16,10 @@ export class HomeDataUsecase implements UseCaseInterface {
         if (!user || !user.id_user || !user.name) return new UserNotFoundException();
 
         return { 
-            id: user.id_user,
-            name: user.name
+            user: {
+              id: user.id_user,
+              name: user.name
+            }
         }
       }
 }
