@@ -56,16 +56,16 @@ try {
 
     REDIS_PRODUCTION_HOST: process.env.REDIS_PRODUCTION_HOST
       ? process.env.REDIS_PRODUCTION_HOST
-      : "",
+      : '',
     REDIS_PRODUCTION_PORT: process.env.REDIS_PRODUCTION_PORT
       ? Number(process.env.REDIS_PRODUCTION_PORT)
       : 0,
     REDIS_PRODUCTION_USER: process.env.REDIS_PRODUCTION_USER
       ? process.env.REDIS_PRODUCTION_USER
-      : "",
+      : '',
     REDIS_PRODUCTION_PASSWORD: process.env.REDIS_PRODUCTION_PASSWORD
       ? process.env.REDIS_PRODUCTION_PASSWORD
-      : "",
+      : '',
 
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: process.env.REDIS_PORT

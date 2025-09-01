@@ -8,6 +8,4 @@ export const HomeDataResponseSchema = z.object({
   }),
 });
 
-export class HomeDataResponseDTO extends createZodDto(
-  HomeDataResponseSchema,
-) {}
+export class HomeDataResponseDTO extends createZodDto(HomeDataResponseSchema) {}

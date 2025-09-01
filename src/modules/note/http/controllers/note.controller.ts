@@ -219,6 +219,12 @@ export class NoteController implements NoteControllerInterface {
         message: result.message,
         status: result.getStatus(),
       });
+
+    const allNotes = await this.browseNotesUseCase.execute(req.user.id_user);
+
+    await this.cacheManager.set(`notes-${req.user.id_user}`, allNotes);
+
+    await this.cacheManager.set(`note-${result.id_note}`, result);
     return res.status(201).json(result);
   }
 
@@ -254,6 +260,10 @@ export class NoteController implements NoteControllerInterface {
         body.note_id,
         req.user.id_user,
       );
+
+      const allNotes = await this.browseNotesUseCase.execute(req.user.id_user);
+
+      await this.cacheManager.set(`notes-${req.user.id_user}`, allNotes);
 
       await this.cacheManager.set(`note-${body.note_id}`, updatedNote);
 
@@ -301,6 +311,10 @@ export class NoteController implements NoteControllerInterface {
         req.user.id_user,
       );
 
+      const allNotes = await this.browseNotesUseCase.execute(req.user.id_user);
+
+      await this.cacheManager.set(`notes-${req.user.id_user}`, allNotes);
+
       await this.cacheManager.set(`note-${body.note_id}`, updatedNote);
 
       return res.status(204).send();
@@ -341,6 +355,10 @@ export class NoteController implements NoteControllerInterface {
         status: result.getStatus(),
       });
     } else {
+      const allNotes = await this.browseNotesUseCase.execute(req.user.id_user);
+
+      await this.cacheManager.set(`notes-${req.user.id_user}`, allNotes);
+
       await this.cacheManager.set(`note-${cuid}`, result);
 
       return res.status(200).json(result);
@@ -372,6 +390,10 @@ export class NoteController implements NoteControllerInterface {
       });
     }
     await this.cacheManager.del(`note-${cuid}`);
+
+    const allNotes = await this.browseNotesUseCase.execute(req.user.id_user);
+
+    await this.cacheManager.set(`notes-${req.user.id_user}`, allNotes);
 
     return res.status(204).send();
   }
