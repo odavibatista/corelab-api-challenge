@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   Post,
   Req,
@@ -8,6 +9,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
@@ -32,6 +34,8 @@ import { InvalidCredentialsException } from '../../domain/dtos/errors/InvalidCre
 import { CreateUserUseCase } from '../../infra/usecases/create-user.usecase';
 import { UnprocessableDataException } from '../../../../shared/domain/errors/UnprocessableData.exception';
 import { UserLoginUsecase } from '../../infra/usecases/user-login.usecase';
+import { HomeDataUsecase } from '../../infra/usecases/home-data.usecase';
+import { HomeDataResponseDTO } from '../../domain/dtos/requests/HomeData.request.dto';
 
 @Controller('user')
 @ApiTags('Usuário')
@@ -39,6 +43,7 @@ export class UserController implements UserControllerInterface {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly userLoginUseCase: UserLoginUsecase,
+    private readonly homeDataUseCase: HomeDataUsecase,
   ) {}
 
   @Post('register')
@@ -109,14 +114,44 @@ export class UserController implements UserControllerInterface {
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<Response> {
-    if (req.user) {
-      throw new UnauthorizedException('Usuário já autenticado.');
-    }
+    if (req.user) throw new UnauthorizedException('Usuário já autenticado.');
 
     const userIp = (req.headers['x-forwarded-for'] ||
       req.socket.remoteAddress) as string;
 
     const result = await this.userLoginUseCase.execute(data, userIp);
+
+    if (result instanceof HttpException) {
+      return res.status(result.getStatus()).json({
+        message: result.message,
+        status: result.getStatus(),
+      });
+    } else {
+      return res.status(200).json(result);
+    }
+  }
+
+  @Get('home-data')
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: 'Dados do usuário.',
+    type: HomeDataResponseDTO,
+  })
+  @ApiUnauthorizedResponse({
+    description: new UnauthorizedException().message,
+    type: AllExceptionsFilterDTO,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Erro interno do servidor.',
+    type: AllExceptionsFilterDTO,
+  })
+  async homeData(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<Response | AllExceptionsFilterDTO> {
+    if (!req.user) throw new UnauthorizedException();
+
+    const result = await this.homeDataUseCase.execute(req.user.id_user);
 
     if (result instanceof HttpException) {
       return res.status(result.getStatus()).json({

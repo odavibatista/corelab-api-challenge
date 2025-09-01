@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { JWTProvider } from '../providers/jwt.provider';
 import { HashProvider } from '../providers/hash.provider';
 import { EncrypterProvider } from '../../../../shared/infra/providers/Encrypter.provider';
@@ -8,6 +8,7 @@ import { UserController } from '../../http/controllers/user.controller';
 import { DateProvider } from '../../../../shared/infra/providers/Date.provider';
 import { CreateUserUseCase } from '../usecases/create-user.usecase';
 import { UserLoginUsecase } from '../usecases/user-login.usecase';
+import { HomeDataUsecase } from '../usecases/home-data.usecase';
 
 @Module({
   imports: [],
@@ -20,11 +21,15 @@ import { UserLoginUsecase } from '../usecases/user-login.usecase';
     DateProvider,
     CreateUserUseCase,
     UserLoginUsecase,
+    HomeDataUsecase,
   ],
   exports: [JWTProvider, HashProvider],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware);
+    consumer.apply(AuthenticationMiddleware).forRoutes({
+      path: 'user/home-data',
+      method: RequestMethod.GET,
+    });
   }
 }

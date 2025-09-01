@@ -14,4 +14,8 @@ export interface UserControllerInterface {
     req: Request,
     res: Response,
   ): Promise<Response>;
+  homeData(
+    req: Request,
+    res: Response,
+  ): Promise<Response | AllExceptionsFilterDTO>;
 }
