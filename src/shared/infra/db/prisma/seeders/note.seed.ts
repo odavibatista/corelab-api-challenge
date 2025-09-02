@@ -23,25 +23,36 @@ export const noteSeeder = async (prisma: PrismaClient) => {
   await prisma.note.createMany({
     data: [
       {
-        note_title: encrypterProvider.encrypt({ content: 'Nota 1' }),
-        note_text: encrypterProvider.encrypt({ content: 'Texto da Nota 1' }),
-        user_id: existingUser.id_user,
-        starred: false,
-        note_color: 'red',
-      },
-      {
-        note_title: encrypterProvider.encrypt({ content: 'Nota 2' }),
-        note_text: encrypterProvider.encrypt({ content: 'Texto da Nota 2' }),
+        note_title: encrypterProvider.encrypt({ content: 'Shopping list' }),
+        note_text: encrypterProvider.encrypt({ content: `
+          • Milk\n
+          • Eggs\n
+          • Bread` 
+        }),
         user_id: existingUser.id_user,
         starred: true,
         note_color: 'yellow',
       },
       {
-        note_title: encrypterProvider.encrypt({ content: 'Nota 3' }),
-        note_text: encrypterProvider.encrypt({ content: 'Texto da Nota 3' }),
+        note_title: encrypterProvider.encrypt({ content: 'Meeting notes' }),
+        note_text: encrypterProvider.encrypt({ content: '' }),
+        user_id: existingUser.id_user,
+        starred: true,
+        note_color: 'blue',
+      },
+      {
+        note_title: encrypterProvider.encrypt({ content: 'Project ideas' }),
+        note_text: encrypterProvider.encrypt({ content: 'Launch new website' }),
         user_id: existingUser.id_user,
         starred: false,
-        note_color: 'green',
+        note_color: 'red',
+      },
+      {
+        note_title: encrypterProvider.encrypt({ content: 'Vacation plans' }),
+        note_text: encrypterProvider.encrypt({ content: 'Visit Rome in June' }),
+        user_id: existingUser.id_user,
+        starred: false,
+        note_color: 'red',
       },
     ],
   });
