@@ -3,6 +3,7 @@
 Esta PR contém a solução do desafio para a vaga de Dev Full-stack da Corelab, seguindo os requisitos solicitados para o desenvolvimento de uma aplicação full-stack de anotações.
 
 ### Features
+
 - [x] Criptografia: Os dados sensíveis do usuário e o conteúdo das notas é inteiramente criptografado através de criptografia AES-256 utilizando a lib `crypto` do Node.js. Sempre que um dado é solicitado, ele é descriptografado em tempo real, garantindo a segurança das informações, e é sempre criptografado ao ser salvo no banco de dados;
 - [x] Autenticação JWT + Middleware: A API conta com autenticação utilizando a lib `JWT`, que gera tokens baseados em dados do próprio usuário. Os UseCases de cada implementação garantem que somente o usuário dono daquele item possa acessá-lo, e respostas negativas da API são dadas em caso de tentativa de trazer dados indevidos.
 - [x] Documentação no Swagger: A API conta com uma documentação utilizando a lib Swagger, que utiliza as tipagens montadas com as libs `zod` e `nestjs-zod` para documentar cada tipo de informação esperada em cada endpoint, e o objeto retornado nos casos bem e mau-sucedidos;
@@ -14,6 +15,7 @@ Esta PR contém a solução do desafio para a vaga de Dev Full-stack da Corelab,
 ### Tecnologias Utilizadas
 
 #### Back-end:
+
 - ORM: Prisma + Typescript;
 - Banco de dados: MySQL;
 - Framework: NestJS + Express;
@@ -22,17 +24,17 @@ Esta PR contém a solução do desafio para a vaga de Dev Full-stack da Corelab,
 - Testes: Jest + Supertest;
 - Autenticação: JWT
 
-
 #### Front-end:
+
 - Framework: NextJS + Typescript;
 - Estilização: SASS;
 - Tipagens: Zod + TypeScript;
 - Requisições/Integração: Axios;
 
-
 ### Rodando a aplicação
 
 #### Rodando - clonagem + configuração das variáveis de ambiente
+
 Efetue a clonagem dos dois repositórios, front-end e back-end em uma única pasta, de modo a manter a estrutura mais limpa.
 
 Na pasta do back-end, crie um arquivo `.env` com as variáveis de ambiente necessárias (veja o arquivo `.env.example` para referência).
@@ -86,9 +88,9 @@ REDIS_PRODUCTION_PASSWORD="your-password-here"
 
 Por fim, no repositório do front-end, copie o arquivo `.env.example`, altere seu nome para `.env` e mude o valor da variável `NEXT_PUBLIC_API` para a URL da API montada via configuração manual ou via Docker (próximo passo).
 
-
 #### Rodando com Docker
-Ambos os repositórios já vêm pré-configurados com as informações do Docker que serão utilizadas para criar os containers. Para isso, basta rodar o comando `npm run docker:up` ou `docker-compose up` na root de cada um dos projetos, e os containers serão iniciados automaticamente. 
+
+Ambos os repositórios já vêm pré-configurados com as informações do Docker que serão utilizadas para criar os containers. Para isso, basta rodar o comando `npm run docker:up` ou `docker-compose up` na root de cada um dos projetos, e os containers serão iniciados automaticamente.
 
 (OBS: Lembre-se de que é necessário ter o Docker instalado e em execução na sua máquina.)
 (OBS 2: Caso esteja utilizando Windows, o Docker pode confundir o localhost da url do banco criado em container com o localhost do seu sistema. Fechar o processo do mysql no Gerenciador de Tarefas pode ajudar a resolver esse problema.)
@@ -96,7 +98,11 @@ Ambos os repositórios já vêm pré-configurados com as informações do Docker
 Por padrão, a API será aberta na porta 3311. Basta utilizar a URL `http://localhost:3311/swagger` para acessar a documentação.
 
 #### Rodando localmente
+
 Após a configuração, rode o comando `npm install` para instalar as dependências do projeto. Após isso, rode o comando `npx prisma migrate dev`, e insira o nome da migration para que o banco seja sincronizado com o modelo das entidades do arquivo `schema.prisma`. Após isso, rode o comando `npx prisma db seed` para rodar o seed de um usuário e três notas padrão (vê-los na pasta `./src\shared\infra\db\prisma\seeders`).
 Por fim, rode o comando `npm run start:dev` para iniciar a aplicação em modo de desenvolvimento, e assim que a aplicação iniciar, é possível acessar sua documentação através da URL `http://localhost:5000/swagger`.
 
 No repositório do front-end, rode o comando `npm install`, e em seguida `npm run dev` para iniciar a aplicação front-end.
+
+#### Vídeo
+Para assistir o vídeo mostrando a execução do projeto integrado, clique [aqui](https://drive.google.com/file/d/1OrNm63xbSP7wizEVmFbTeeTPdOwhwXQT/view?usp=sharing)!
